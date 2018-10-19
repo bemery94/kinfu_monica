@@ -3,7 +3,7 @@ Author: Riccardo Monica <rmonica[at]ce.unipr.it>
   RIMLab, Department of Information Engineering, University of Parma, Italy
   http://www.rimlab.ce.unipr.it/
 
--- INTRODUCTION --
+# INTRODUCTION 
 This repository contains a KinFu Large Scale wrapper for ROS (Robot Operating System, www.ros.org).
 KinFu is the KinectFusion implementation by PCL (Point Cloud Library, www.pointclouds.org).
 The original version of this wrapper was developed by Michael Korn <michael.korn(at)uni-due.de> and published at "http://fsstud.is.uni-due.de/svn/ros/is/kinfu/". That version just published the tracked reference frame to TF and the current synthetic depth map.
@@ -22,11 +22,11 @@ The code is not backward compatible with original KinFu.
 
 In this repository, there are four ROS packages, explained in the following sections.
 
--- KINFU_MSGS --
+# KINFU_MSGS 
 
 Definition of the messages for the other packages.
 
--- KINFU --
+# KINFU 
 
 The core package. This package runs KinFu and the extensions. Since PCL dropped support for KinFu, the source code has been copied in the package. The simple installation procedure is detailed in kinfu/INSTALL.txt.
 
@@ -41,37 +41,37 @@ Requests ask kinfu to publish parts of the internal representation, optionally p
 See kinfu_msgs/KinfuTsdfRequest.msg for the message type.
 
 For requests, the kinfu node offers two interfaces:
-* message-based interface *
+* message-based interface 
 Requests are sent to the kinfu node, through the topic defined by the parameter request_topic (default: "/kinfu_request_topic").
 Responses are published by the kinfu node into the topic specified by the request_source_name field in the request.
 NOTE: Since ROS is unable to guarantee the delivery of a message sent by a just-created publisher, kinfu creates a latched publisher and keeps it alive until a subscriber is detected on the topic. If no subscriber is detected, the publisher is discarded after 30 seconds.
 
-* action-based interface *
+* action-based interface 
 This interface wraps the request/response mechanism of kinfu inside an action (actionlib).
 The kinfu node creates an action server (by default, /kinfu_output/actions/request), of type kinfu_msgs/Request.action.
 Multiple actions may be active at the same time and are executed concurrently, if possible (access to KinFu is always exclusive).
 
 Parameters and their default values are listed in "kinfu/src/parameters.h".
 
--- KINFU_TF_FEEDER --
+# KINFU_TF_FEEDER 
 
 The kinfu_tf_feeder node is a simple utility node that feeds the hints from TF by sending commands to the kinfu node. This allows for a greater flexibility than using the "forced_tf_position" parameter. The node may send the hint only if the TF frame is recent enough. In addition, it can use COMMAND_TYPE_TRIGGER, so a suspended kinfu node may be executed only when fresh TF data is available.
 
--- KINFU_VOXELGRID_CONVERSIONS --
+# KINFU_VOXELGRID_CONVERSIONS 
 
 This node can convert the std_msgs/Float32MultiArray message from REQUEST_TYPE_GET_VOXELGRID into:
-- sensor_msgs/PointCloud2
-- arm_navigation_msgs/CollisionMap (for OpenRAVE planner)
-- moveit_msgs/PlanningScene (for MoveIt! planner)
+* sensor_msgs/PointCloud2
+* arm_navigation_msgs/CollisionMap (for OpenRAVE planner)
+* moveit_msgs/PlanningScene (for MoveIt! planner)
 The collision maps are built as a set of cubes. A few basic compression algorithms are available.
 
--- KINFU_OUTPUT --
+# KINFU_OUTPUT 
 
 When the kinfu package was first created, in 2013, PCL and ROS were not fully independent yet. ROS would include (parts of) its own version of PCL, even when another version was installed in the system or compiled specifically to enable KinFu. This caused all sorts of compatibility problems.
 For this reason, the kinfu_output node was created. It communicated with the kinfu node through custom-defined messages, and converted them into ROS standard messages.
 As of 2016, the source of KinFu is included in the package, and separation between ROS and PCL is complete on both Ubuntu 14.04 and Ubuntu 16.04. The kinfu_output node is not needed anymore, and its functionality is integrated into the kinfu node.
 
--- PUBLICATIONS --
+# PUBLICATIONS 
 
 R. Monica, J. Aleotti, Contour-based next-best view planning from point cloud segmentation of unknown objects, Autonomous Robots, Volume 42, Issue 2, February 2018, Pages 443-458
 Riccardo Monica, Jacopo Aleotti, Stefano Caselli, A KinFu based approach for robot spatial attention and view planning, Robotics and Autonomous Systems, Volume 75, Part B, 2016
