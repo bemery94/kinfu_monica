@@ -1,8 +1,4 @@
 <launch>
-  <include file="$(find openni_launch)/launch/openni.launch">
-    <arg name="camera" value="kinect1" />
-  </include>
-  
   <node pkg="kinfu" type="kinfu" name="kinect_kinfu1" output="screen">
     <param name="prefix_topic" value="/kinect1" />
     <param name="autostart" value="true" />
