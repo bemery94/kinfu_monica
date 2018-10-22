@@ -76,6 +76,7 @@
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
 #include <sensor_msgs/fill_image.h>
+#include <geometry_msgs/Pose.h>
 #include <std_msgs/Empty.h>
 #include <ros/spinner.h>
 
@@ -506,11 +507,20 @@ struct KinFuLSApp
         m_command_subscriber.setInitialTransformation(pose);
         m_world_download_manager.setReferenceFrameName(m_pose_publisher.getFirstFrameName());
 
+        // Setup publisher for force feedback topic
+        std::string force_feedback_topic;
+        nodeHandle.param<std::string>(PARAM_NAME_FORCE_FEEDBACK_TOPIC, force_feedback_topic,
+                                      PARAM_DEFAULT_FORCE_FEEDBACK_TOPIC);
+        m_obstacle_force_publisher = nodeHandle.advertise<geometry_msgs::Pose>(force_feedback_topic,
+                                                                               10);
+
         kinfu_->setInitialCameraPose(pose);
         kinfu_->volume().setTsdfTruncDist(0.030f/*meters*/);
         kinfu_->setIcpCorespFilteringParams(0.1f/*meters*/, sin(pcl::deg2rad(20.f)));
         //kinfu_->setDepthTruncationForICP(3.f/*meters*/);
         kinfu_->setCameraMovementThreshold(0.001f);
+
+        m_obstacle_force_feedback = new ObstacleForceFeedback(kinfu_);
 
         //Init KinFuLSApp
         tsdf_cloud_ptr_ = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);
@@ -527,6 +537,7 @@ struct KinFuLSApp
 
     ~KinFuLSApp()
     {
+        delete m_obstacle_force_feedback;
     }
 
     // this contains the main cycle for the kinfu thread
@@ -637,6 +648,10 @@ struct KinFuLSApp
                 if (istriggered)
                     m_command_subscriber.ack(istriggered_command_id, true);
             }
+
+            // Calculate the obstacle force at the end effector based off the proximity of obstacles.
+            geometry_msgs::Pose obstacle_force = m_obstacle_force_feedback->calculateObstacleForce();
+            m_obstacle_force_publisher.publish(obstacle_force);
 
             if ((clear_sphere || clear_bbox || hasrequests) && !kinfu_->isShiftComplete())
             {
@@ -911,6 +926,7 @@ private:
     ImagePublisher m_image_publisher;
     PosePublisher m_pose_publisher;
     ICPIsLostPublisher m_icp_is_lost_publisher;
+    ros::Publisher m_obstacle_force_publisher;
 
     WorldDownloadManager m_world_download_manager;
 
@@ -943,6 +959,8 @@ private:
     boost::mutex m_mutex;
     boost::condition_variable m_cond;
 
+    // Set up obstacle force feedback object.
+    ObstacleForceFeedback* m_obstacle_force_feedback;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

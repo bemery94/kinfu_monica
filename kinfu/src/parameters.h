@@ -142,4 +142,9 @@
 #define PARAM_NAME_COMMAND_ACK_TOPIC      "command_ack_topic"
 #define PARAM_DEFAULT_COMMAND_ACK_TOPIC   "/kinfu_command_ack_topic"
 
+
+// Obstacle force feedback params:
+#define PARAM_NAME_FORCE_FEEDBACK_TOPIC         "force_feedback_topic"
+#define PARAM_DEFAULT_FORCE_FEEDBACK_TOPIC      "/force_feedback"
+
 #endif // PARAMETERS_H
