@@ -78,7 +78,7 @@ if (${KINFU_CONFIGURED})
 
     src/kinfu_output_request_manager.cpp
     src/kinfu_output_action_manager.cpp
-    )
+    src/ObstacleForceFeedback.cpp)
 
   add_dependencies(kinfu kinfu_msgs_generate_messages_cpp)
 

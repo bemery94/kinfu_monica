@@ -1,0 +1,11 @@
+#ifndef KINFU_OBSTACLEFORCEFEEDBACK_H
+#define KINFU_OBSTACLEFORCEFEEDBACK_H
+
+
+class ObstacleForceFeedback
+{
+
+};
+
+
+#endif //KINFU_OBSTACLEFORCEFEEDBACK_H
