@@ -137,10 +137,13 @@ class PosePublisher
     m_reverse_initial_transformation = Eigen::Affine3f::Identity();
     nhandle.param<std::string>(PARAM_NAME_TF_REFERENCE_FRAME,m_first_frame_name,PARAM_DEFAULT_TF_REFERENCE_FRAME);
     nhandle.param<std::string>(PARAM_NAME_TF_CURRENT_FRAME,m_current_frame_name,PARAM_DEFAULT_TF_CURRENT_FRAME);
+    ROS_INFO_STREAM("[PosePublisher] reference frame = " << m_first_frame_name);
+    ROS_INFO_STREAM("[PosePublisher] current frame = " << m_current_frame_name);
   }
 
   void publishPose(KinfuTracker& kinfu)
   {
+    ROS_DEBUG_STREAM("[PosePublisher] Inside publishPose");
     Eigen::Affine3f original_coords = m_reverse_initial_transformation * kinfu.getCameraPose();
 
     // after this, the z axis is the sensor axis and points forward
@@ -306,6 +309,10 @@ class ImageSubscriber
 
     std::string image_topic;
     m_nh.param<std::string>(PARAM_NAME_IMAGE_TOPIC,image_topic,prefix_topic + PARAM_NAME_IMAGE_TOPIC);
+
+    ROS_INFO_STREAM("depth image topic = " << depth_image_topic);
+    ROS_INFO_STREAM("camera image topic = " << image_topic);
+    ROS_INFO_STREAM("camera info topic = " << camera_info_topic);
 
     bool enable_texture_extraction = PARAM_DEFAULT_EXTRACT_TEXTURES;
     m_nh.getParam(PARAM_NAME_EXTRACT_TEXTURES,enable_texture_extraction);
@@ -474,6 +481,8 @@ struct KinFuLSApp
   {
     boost::mutex::scoped_lock main_lock(m_mutex);
 
+    ROS_INFO_STREAM("Inside run\n\n");
+
     while (!m_request_termination)
     {
       bool reset;
@@ -562,11 +571,17 @@ struct KinFuLSApp
         ROS_INFO("KinFu was reset.");
       }
 
+      ROS_DEBUG_STREAM("hasimage run" << hasimage);
+      ROS_DEBUG_STREAM("isrunning run" << isrunning);
+      ROS_DEBUG_STREAM("istriggered run" << istriggered);
+
+
       if (hasimage && (isrunning || istriggered))
         {
-        execute(depth,cameraInfo,rgb,pose_hint);
-        if (istriggered)
-          m_command_subscriber.ack(istriggered_command_id,true);
+            ROS_DEBUG_STREAM("[run] Before execute()");
+            execute(depth,cameraInfo,rgb,pose_hint);
+            if (istriggered)
+                m_command_subscriber.ack(istriggered_command_id,true);
         }
 
       if ((clear_sphere || clear_bbox || hasrequests) && !kinfu_->isShiftComplete())
@@ -652,7 +667,9 @@ struct KinFuLSApp
   void execute(const sensor_msgs::ImageConstPtr& depth, const sensor_msgs::CameraInfoConstPtr& cameraInfo,
                const sensor_msgs::ImageConstPtr& rgb,const KinfuTracker::THint & pose_hint)
   {
-    frame_counter_++;
+      ROS_DEBUG_STREAM("[execute] In execute()");
+
+      frame_counter_++;
 
     if (kinfu_->icpIsLost())
     {
@@ -697,7 +714,9 @@ struct KinFuLSApp
     if (kinfu_->isFinished())
       nh.shutdown();
 
-    m_image_publisher.publishScene (*kinfu_,depth);
+      ROS_DEBUG_STREAM("[execute] Before publish");
+
+      m_image_publisher.publishScene (*kinfu_,depth);
     m_pose_publisher.publishPose(*kinfu_);
 
     //image_view_.publishGeneratedDepth(*kinfu_);
