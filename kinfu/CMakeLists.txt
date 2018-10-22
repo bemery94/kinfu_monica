@@ -6,6 +6,8 @@ if (CMAKE_COMPILER_IS_GNUCC AND (NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0
   message(STATUS "kinfu: forcing c++98 for CUDA compatibility.")
 endif()
 
+set (CMAKE_CXX_FLAGS "-g")
+
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   cmake_modules
