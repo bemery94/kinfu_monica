@@ -782,8 +782,10 @@ struct KinFuLSApp
         screenshot_manager_.setCameraIntrinsics(focal_length, cameraInfo->height,
                                                 cameraInfo->width);
 
-
         SampledScopeTime fps(time_ms_);
+
+        // Processes next frame in main kinfu code. They have overloaded the () operator so this
+        // fuses the current depth frame into the model.
         (*kinfu_)(depth_device_, pose_hint);
         if (kinfu_->isFinished())
             nh.shutdown();
