@@ -520,7 +520,7 @@ struct KinFuLSApp
         //kinfu_->setDepthTruncationForICP(3.f/*meters*/);
         kinfu_->setCameraMovementThreshold(0.001f);
 
-        m_obstacle_force_feedback = new ObstacleForceFeedback(kinfu_);
+        m_obstacle_force_feedback = new ObstacleForceFeedback(kinfu_, nodeHandle);
 
         //Init KinFuLSApp
         tsdf_cloud_ptr_ = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);
