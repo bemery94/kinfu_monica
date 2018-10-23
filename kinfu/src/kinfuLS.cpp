@@ -649,10 +649,6 @@ struct KinFuLSApp
                     m_command_subscriber.ack(istriggered_command_id, true);
             }
 
-            // Calculate the obstacle force at the end effector based off the proximity of obstacles.
-            geometry_msgs::Pose obstacle_force = m_obstacle_force_feedback->calculateObstacleForce();
-            m_obstacle_force_publisher.publish(obstacle_force);
-
             if ((clear_sphere || clear_bbox || hasrequests) && !kinfu_->isShiftComplete())
             {
                 ROS_INFO("kinfu: shift incomplete but requests pending, waiting for it...");
@@ -790,10 +786,12 @@ struct KinFuLSApp
         if (kinfu_->isFinished())
             nh.shutdown();
 
-        ROS_DEBUG_STREAM("[execute] Before publish");
-
         m_image_publisher.publishScene(*kinfu_, depth);
         m_pose_publisher.publishPose(*kinfu_);
+
+        // Calculate the obstacle force at the end effector based off the proximity of obstacles.
+        geometry_msgs::Pose obstacle_force = m_obstacle_force_feedback->calculateObstacleForce();
+        m_obstacle_force_publisher.publish(obstacle_force);
 
         //image_view_.publishGeneratedDepth(*kinfu_);
 /*
