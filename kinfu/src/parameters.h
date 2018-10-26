@@ -78,6 +78,9 @@
 #define PARAM_SNAME_SHIFT_DISTANCE        "sd"
 #define PARAM_DEFAULT_SHIFT_DISTANCE      (double(1.5))
 
+#define PARAM_NAME_TRUNCATION_DISTANCE         "truncation_dist"
+#define PARAM_DEFAULT_TRUNCATION_DISTANCE      (double(0.03))
+
 #define PARAM_NAME_CUDA_DEVICE_ID         "cuda_device_id"
 #define PARAM_DEFAULT_CUDA_DEVICE_ID      (int(0))
 

@@ -465,7 +465,7 @@ struct KinFuLSApp
     };
 
     KinFuLSApp(float vsz, const int vr, float shiftDistance, ros::NodeHandle &nodeHandle,
-               uint depth_height, uint depth_width) :
+               uint depth_height, uint depth_width, float truncation_distance) :
             scan_(false), scan_mesh_(false), scan_volume_(false), independent_camera_(false),
             registration_(false), integrate_colors_(false), pcd_source_(false), focal_length_(-1.f),
             m_reset_subscriber(nodeHandle, m_mutex, m_cond),
@@ -474,7 +474,7 @@ struct KinFuLSApp
             m_image_publisher(nodeHandle), m_pose_publisher(nodeHandle),
             m_icp_is_lost_publisher(nodeHandle),
             m_world_download_manager(nodeHandle, m_mutex, m_cond),
-            time_ms_(0), nh(nodeHandle)
+            time_ms_(0), nh(nodeHandle), truncation_distance_(truncation_distance)
     {
         //Init Kinfu Tracker
         Eigen::Vector3f volume_size = Eigen::Vector3f::Constant(vsz/*meters*/);
@@ -515,7 +515,7 @@ struct KinFuLSApp
                                                                                10);
 
         kinfu_->setInitialCameraPose(pose);
-        kinfu_->volume().setTsdfTruncDist(0.030f/*meters*/);
+        kinfu_->volume().setTsdfTruncDist(truncation_distance_/*meters*/);
         kinfu_->setIcpCorespFilteringParams(0.1f/*meters*/, sin(pcl::deg2rad(20.f)));
         //kinfu_->setDepthTruncationForICP(3.f/*meters*/);
         kinfu_->setCameraMovementThreshold(0.001f);
@@ -961,6 +961,8 @@ private:
 
     // Set up obstacle force feedback object.
     ObstacleForceFeedback* m_obstacle_force_feedback;
+
+    float truncation_distance_;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1014,11 +1016,14 @@ int main(int argc, char *argv[])
     nh.getParam(PARAM_NAME_SHIFT_DISTANCE, shift_distance);
     nh.getParam(PARAM_SNAME_SHIFT_DISTANCE, shift_distance);
 
+    double truncation_distance = PARAM_DEFAULT_TRUNCATION_DISTANCE; //pcl::device::DISTANCE_THRESHOLD;
+    nh.getParam(PARAM_NAME_TRUNCATION_DISTANCE, truncation_distance);
+
     double depth_height = PARAM_DEFAULT_DEPTH_HEIGHT, depth_width = PARAM_DEFAULT_DEPTH_WIDTH;
     nh.getParam(PARAM_NAME_DEPTH_HEIGHT, depth_height);
     nh.getParam(PARAM_NAME_DEPTH_WIDTH, depth_width);
 
-    KinFuLSApp app(volume_size, volume_resolution, shift_distance, nh, depth_height, depth_width);
+    KinFuLSApp app(volume_size, volume_resolution, shift_distance, nh, depth_height, depth_width, truncation_distance);
 
     int snapshot_rate = PARAM_DEFAULT_SNAPSHOT_RATE;
     nh.getParam(PARAM_NAME_SNAPSHOT_RATE, snapshot_rate);

@@ -9,6 +9,8 @@
 
     <param name="volume_resolution" value="128" />
 
+    <param name="truncation_dist" value="0.001" />
+
     <param name="autostart" value="true" />
     <param name="response_topic" value="/kinfu_response_topic" />
     <param name="request_topic" value="/kinfu_request_topic" />
