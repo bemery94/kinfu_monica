@@ -201,6 +201,39 @@ void WorldDownloadManager::pingWorker(kinfu_msgs::KinfuTsdfRequestConstPtr req)
   m_request_manager.SendResponse(resp);
 }
 
+
+void WorldDownloadManager::convVoxelPointCloudToWorld(const TsdfCloud& point_cloud_voxel,
+                                                      TsdfCloud& point_cloud_world) const
+{
+    point_cloud_world.resize(point_cloud_voxel.size());
+
+    float voxel_size_metres = m_kinfu->getVoxelSize();
+    Eigen::Vector3f volume_size_metres = m_kinfu->volume().getSize();
+
+    TsdfCloud::iterator it_world = point_cloud_world.begin();
+    for(TsdfCloud::const_iterator it_vox = point_cloud_voxel.points.begin();
+        it_vox != point_cloud_voxel.points.end(); it_vox++)
+    {
+      pcl::PointXYZI world_coords;
+
+      world_coords.x = it_vox->x * voxel_size_metres;
+      world_coords.y = it_vox->y * voxel_size_metres;
+      world_coords.z = it_vox->z * voxel_size_metres;
+      world_coords.intensity = it_vox->intensity;
+
+      // The world distance is measured from the centre of the robot while the robot is in the middle
+      // of the voxel grid.
+      world_coords.x -= volume_size_metres[0] / 2;
+      world_coords.y -= volume_size_metres[1] / 2;
+      world_coords.z -= volume_size_metres[2] / 2 - 0.6 * volume_size_metres[2];
+
+      *it_world = world_coords;
+
+      ++it_world;
+    }
+}
+
+
 void WorldDownloadManager::extractTsdfWorker(kinfu_msgs::KinfuTsdfRequestConstPtr req)
 {
   ROS_INFO("kinfu: Extract Tsdf Worker started.");
@@ -228,8 +261,12 @@ void WorldDownloadManager::extractTsdfWorker(kinfu_msgs::KinfuTsdfRequestConstPt
     temp.swap(*cloud);
   }
 
+  // Convert pointcloud from voxel indices to world coordinates.
+  TsdfCloud point_cloud_world;
+  convVoxelPointCloudToWorld(*cloud, point_cloud_world);
+
   ROS_INFO("kinfu: Sending message...");
-  pcl::toROSMsg(*cloud,resp->pointcloud);
+  pcl::toROSMsg(point_cloud_world,resp->pointcloud);
   resp->pointcloud.header = resp->header;
 
   m_request_manager.SendResponse(resp);

@@ -160,6 +160,9 @@ class WorldDownloadManager: private KinfuOutputIAnswerer
     std::vector<TriangleVectorPtr> *meshes = NULL,
     TriangleVector *out_mesh = NULL);
 
+  void convVoxelPointCloudToWorld(const TsdfCloud& point_cloud_voxel,
+                                  TsdfCloud& point_cloud_world) const;
+
   void extractMeshWorker(kinfu_msgs::KinfuTsdfRequestConstPtr req);
 
   void extractKnownWorker(kinfu_msgs::KinfuTsdfRequestConstPtr req);
