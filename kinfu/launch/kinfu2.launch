@@ -1,14 +1,15 @@
 <launch>
-  <node pkg="kinfu" type="kinfu" name="kinect_kinfu1" output="screen" > <!--launch-prefix="gdb -ex print &#45;&#45;args">-->
+
+  <param name="/kinect_kinfu1/volume_resolution" value="128" />
+  <param name="/kinect_kinfu1/volume_size" value="3" />
+  <node pkg="kinfu" type="kinfu" name="kinect_kinfu1" output="screen"> <!--launch-prefix="gdb -ex print &#45;&#45;args">-->
     <param name="prefix_topic" value="" />
     <param name="camera_info_topic" value="/gazebo_depth_cam/depth/camera_info" />
     <param name="depth_image_topic" value="/gazebo_depth_cam/depth/image_raw" />
     <param name="image_topic" value="/gazebo_depth_cam/rgb/image_raw" />
     <param name="first_frame_reference_name" value="world" />
-    <param name="current_frame_reference_name" value="kinect_link" />
+    <param name="current_frame_reference_name" value="kinect_link_optical" />
 
-    <param name="volume_resolution" value="128" />
-    <param name="volume_size" value="3" />
     <!--<param name="shift_distance" value="10" />-->
 
     <param name="truncation_dist" value="0.1" />
@@ -21,5 +22,7 @@
     <param name="depth_height" type="int" value="480" />
     <param name="depth_width" type="int" value="640" />
   </node>
+
+  <node pkg="force_feedback" type="force_feedback_node" name="force_feedback_node" output="screen" />
 
 </launch>
