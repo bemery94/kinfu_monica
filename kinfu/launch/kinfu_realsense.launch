@@ -9,10 +9,13 @@
     <param name="image_topic" value="/camera/color/image_rect_color" />
     <param name="first_frame_reference_name" value="world" />
     <param name="current_frame_reference_name" value="camera_depth_optical_frame" />
+    <!--param name="current_frame_reference_name" value="camera_link" /-->
+
+    <param name="truncation_dist" value="0.2" />
 
     <!--<param name="shift_distance" value="10" />-->
 
-    <param name="truncation_dist" value="0.2" />
+    <param name="truncation_dist" value="0.3" />
 
     <param name="autostart" value="true" />
     <param name="response_topic" value="/kinfu_response_topic" />
