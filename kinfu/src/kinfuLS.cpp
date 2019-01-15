@@ -93,7 +93,6 @@
 #include "commandsubscriber.h"
 #include "weightcubelistener.h"
 #include "incompletepointslistener.h"
-#include "ObstacleForceFeedback.h"
 
 // ROS custom messages
 #include <kinfu_msgs/KinfuTsdfRequest.h>
@@ -520,8 +519,6 @@ struct KinFuLSApp
         //kinfu_->setDepthTruncationForICP(3.f/*meters*/);
         kinfu_->setCameraMovementThreshold(0.001f);
 
-        m_obstacle_force_feedback = new ObstacleForceFeedback(kinfu_);
-
         //Init KinFuLSApp
         tsdf_cloud_ptr_ = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>);
 
@@ -537,7 +534,6 @@ struct KinFuLSApp
 
     ~KinFuLSApp()
     {
-        delete m_obstacle_force_feedback;
     }
 
     // this contains the main cycle for the kinfu thread
@@ -790,8 +786,6 @@ struct KinFuLSApp
         m_pose_publisher.publishPose(*kinfu_);
 
         // Calculate the obstacle force at the end effector based off the proximity of obstacles.
-        geometry_msgs::Pose obstacle_force = m_obstacle_force_feedback->calculateObstacleForce();
-        m_obstacle_force_publisher.publish(obstacle_force);
 
         //image_view_.publishGeneratedDepth(*kinfu_);
 /*
@@ -959,8 +953,6 @@ private:
     boost::mutex m_mutex;
     boost::condition_variable m_cond;
 
-    // Set up obstacle force feedback object.
-    ObstacleForceFeedback* m_obstacle_force_feedback;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
