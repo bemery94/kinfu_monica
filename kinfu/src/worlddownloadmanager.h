@@ -219,6 +219,7 @@ class WorldDownloadManager: private KinfuOutputIAnswerer
   static void findExtraCubesForBoundingBox(const Eigen::Vector3f& current_cube_min, const Eigen::Vector3f& current_cube_max,
     const Eigen::Vector3f& bbox_min, const Eigen::Vector3f& bbox_max, Vector3fVector& cubes_centers, bool& extract_current);
   static Eigen::Vector3f floor3f(const Eigen::Vector3f & v);
+  void convVoxelPointCloudToWorld(const TsdfCloud& point_cloud_voxel, TsdfCloud& point_cloud_world) const;
 
   ros::NodeHandle &m_nh;
 
