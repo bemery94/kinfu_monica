@@ -147,9 +147,12 @@ public:
         m_reverse_initial_transformation = Eigen::Affine3f::Identity();
         nhandle.param<std::string>(PARAM_NAME_TF_REFERENCE_FRAME, m_first_frame_name,
                                    PARAM_DEFAULT_TF_REFERENCE_FRAME);
+        nhandle.param<std::string>(PARAM_NAME_TF_ROBOT_FRAME, m_robot_frame_name,
+                                   PARAM_DEFAULT_TF_ROBOT_FRAME);
         nhandle.param<std::string>(PARAM_NAME_TF_CURRENT_FRAME, m_current_frame_name,
                                    PARAM_DEFAULT_TF_CURRENT_FRAME);
         ROS_INFO_STREAM("[PosePublisher] reference frame = " << m_first_frame_name);
+        ROS_INFO_STREAM("[PosePublisher] robot frame = " << m_robot_frame_name);
         ROS_INFO_STREAM("[PosePublisher] current frame = " << m_current_frame_name);
     }
 
@@ -163,16 +166,32 @@ public:
         Eigen::Matrix<float, 3, 3, Eigen::RowMajor> erreMats = original_coords.linear();
         Eigen::Vector3f teVecs = original_coords.translation();
 
-        tf::Transform transform(
+        tf::Transform transform_current_to_first(
                 tf::Matrix3x3(erreMats(0, 0), erreMats(0, 1), erreMats(0, 2),
                               erreMats(1, 0), erreMats(1, 1), erreMats(1, 2),
                               erreMats(2, 0), erreMats(2, 1), erreMats(2, 2)),
                 tf::Vector3(teVecs[0], teVecs[1], teVecs[2])
         );
 
-        m_transform = tf::StampedTransform(transform, ros::Time::now(), m_first_frame_name,
-                                           m_current_frame_name);
-        m_tf_broadcaster.sendTransform(m_transform);
+        tf::StampedTransform transform_current_to_robot;
+        try
+        {
+            m_tf_listener.lookupTransform(m_robot_frame_name, m_current_frame_name, 
+                                          ros::Time(0), transform_current_to_robot);
+
+            tf::Transform transform_robot_to_first;
+            transform_robot_to_first = transform_current_to_first * transform_current_to_robot.inverse();
+
+            m_transform = tf::StampedTransform(transform_robot_to_first, ros::Time::now(), m_first_frame_name,
+                                               m_robot_frame_name);
+            m_tf_broadcaster.sendTransform(m_transform);
+        }
+        catch (tf::TransformException ex)
+        {
+            ROS_ERROR("[kinfuLS.cpp] %s",ex.what());
+        }
+
+       
     }
 
     void setReverseInitialTransformation(Eigen::Affine3f it)
@@ -199,8 +218,10 @@ private:
     // for TF frames
     std::string m_first_frame_name;
     std::string m_current_frame_name;
+    std::string m_robot_frame_name;
 
     tf::TransformBroadcaster m_tf_broadcaster;
+    tf::TransformListener m_tf_listener;
 
     tf::StampedTransform m_transform;
 

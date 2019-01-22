@@ -133,6 +133,9 @@
 #define PARAM_NAME_TF_CURRENT_FRAME       "current_frame_reference_name"
 #define PARAM_DEFAULT_TF_CURRENT_FRAME    "/kinfu_current_frame"
 
+#define PARAM_NAME_TF_ROBOT_FRAME         "robot_frame_reference_name"
+#define PARAM_DEFAULT_TF_ROBOT_FRAME      "/kinfu_robot_frame"
+
 #define PARAM_NAME_CURRENT_VIEW_TOPIC     "current_view_topic"
 #define PARAM_DEFAULT_CURRENT_VIEW_TOPIC  "/kinfu_current_view"
 
