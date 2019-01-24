@@ -193,7 +193,7 @@ public:
                                                                    0, -1, 0), tf::Vector3(0, 0, 0));
 
             m_transform = tf::StampedTransform(optical_to_world_transform, ros::Time::now(), 
-                                               m_first_frame_name + "_world", m_first_frame_name + "_optical");
+                                               m_first_frame_name, m_first_frame_name + "_optical");
             m_tf_broadcaster.sendTransform(m_transform);
         }
         catch (tf::TransformException ex)
