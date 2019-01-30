@@ -184,7 +184,7 @@ void WorldDownloadManager::pingWorker(kinfu_msgs::KinfuTsdfRequestConstPtr req)
   kinfu_msgs::RequestResultPtr resp(new kinfu_msgs::RequestResult());
 
   resp->tsdf_header = req->tsdf_header;
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
 
   // if reset is required, reset the kinfu
@@ -240,7 +240,7 @@ void WorldDownloadManager::extractTsdfWorker(kinfu_msgs::KinfuTsdfRequestConstPt
   // prepare with same header
   kinfu_msgs::RequestResultPtr resp(new kinfu_msgs::RequestResult());
   resp->tsdf_header = req->tsdf_header;
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
 
   ROS_INFO("kinfu: Locking kinfu...");
@@ -282,7 +282,7 @@ void WorldDownloadManager::extractCloudWorker(kinfu_msgs::KinfuTsdfRequestConstP
   // prepare with same header
   kinfu_msgs::RequestResultPtr resp(new kinfu_msgs::RequestResult());
   resp->tsdf_header = req->tsdf_header;
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
 
   ROS_INFO("kinfu: Locking kinfu...");
@@ -384,7 +384,7 @@ void WorldDownloadManager::extractKnownWorker(kinfu_msgs::KinfuTsdfRequestConstP
   // prepare with same header
   kinfu_msgs::RequestResultPtr resp(new kinfu_msgs::RequestResult());
   resp->tsdf_header = req->tsdf_header;
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
 
   ROS_INFO("kinfu: Locking kinfu...");
@@ -448,7 +448,7 @@ void WorldDownloadManager::extractMeshWorker(kinfu_msgs::KinfuTsdfRequestConstPt
   // prepare with same header
   kinfu_msgs::RequestResultPtr resp(new kinfu_msgs::RequestResult());
   resp->tsdf_header = req->tsdf_header;
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
 
   ROS_INFO("kinfu: Locking kinfu...");
@@ -526,7 +526,7 @@ void WorldDownloadManager::extractMeshWorker(kinfu_msgs::KinfuTsdfRequestConstPt
 
   ROS_INFO("kinfu: Publishing...");
   pcl::toROSMsg(*cloud,resp->mesh.cloud);
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
   resp->mesh.header = resp->header;
 
@@ -583,7 +583,7 @@ void WorldDownloadManager::extractViewWorker(kinfu_msgs::KinfuTsdfRequestConstPt
 
   ROS_INFO("kinfu: Sending message...");
   sensor_msgs::fillImage(resp->image, "rgb8", rows, cols, cols * 3, &view_host[0]);
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
   resp->image.header = resp->header;
 
@@ -719,7 +719,7 @@ void WorldDownloadManager::extractViewCloudWorker(kinfu_msgs::KinfuTsdfRequestCo
   ROS_INFO("kinfu: Sending message...");
   pcl::toROSMsg(*cloud,resp->pointcloud);
 
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
   resp->pointcloud.header = resp->header;
 
@@ -813,7 +813,7 @@ void WorldDownloadManager::extractVoxelCountGenericWorker(kinfu_msgs::KinfuTsdfR
   unlockKinfu();
 
   ROS_INFO("kinfu: Sending message...");
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
 
   {
@@ -998,7 +998,7 @@ void WorldDownloadManager::extractVoxelCountViewsWorker(kinfu_msgs::KinfuTsdfReq
                   "  unknown:  " << diff_time - (shiftnear_time + raycast_time + download_time + counter_time));
 
   ROS_INFO("kinfu: Sending message...");
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
 
   {
@@ -1107,7 +1107,7 @@ void WorldDownloadManager::extractVoxelGridWorker(kinfu_msgs::KinfuTsdfRequestCo
   unlockKinfu();
 
   ROS_INFO("kinfu: Sending message...");
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
   resp->float_values.data = voxelgrid;
 
@@ -1202,7 +1202,7 @@ void WorldDownloadManager::extractBorderPointsWorker(kinfu_msgs::KinfuTsdfReques
   }
 
   ROS_INFO("kinfu: Sending message...");
-  resp->header.frame_id = m_reference_frame_name + "_optical";
+  resp->header.frame_id = m_reference_frame_name;
   resp->header.stamp = ros::Time::now();
   pcl::toROSMsg(*total_cloud,resp->pointcloud);
   resp->pointcloud.header = resp->header;

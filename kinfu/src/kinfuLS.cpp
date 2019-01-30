@@ -182,26 +182,14 @@ public:
             tf::Transform transform_robot_to_first;
             transform_robot_to_first = transform_current_to_first * transform_current_to_robot.inverse();
 
-            m_transform = tf::StampedTransform(transform_robot_to_first, ros::Time::now(), m_first_frame_name + "_optical",
+            m_transform = tf::StampedTransform(transform_robot_to_first, ros::Time::now(), m_first_frame_name,
                                                m_robot_frame_name);
-            m_tf_broadcaster.sendTransform(m_transform);
-
-            // Tranform from the optical frame of the camera (z forward, x right, y down) to the world 
-            // frame (z up, x forward, y left)
-            tf::Transform optical_to_world_transform(tf::Matrix3x3(0,  0, 1,
-                                                                  -1,  0, 0,
-                                                                   0, -1, 0), tf::Vector3(0, 0, 0));
-
-            m_transform = tf::StampedTransform(optical_to_world_transform, ros::Time::now(), 
-                                               m_first_frame_name, m_first_frame_name + "_optical");
             m_tf_broadcaster.sendTransform(m_transform);
         }
         catch (tf::TransformException ex)
         {
             ROS_ERROR("[kinfuLS.cpp] %s",ex.what());
-        }
-
-       
+        }       
     }
 
     void setReverseInitialTransformation(Eigen::Affine3f it)
