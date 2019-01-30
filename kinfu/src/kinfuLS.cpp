@@ -151,45 +151,52 @@ public:
                                    PARAM_DEFAULT_TF_ROBOT_FRAME);
         nhandle.param<std::string>(PARAM_NAME_TF_CURRENT_FRAME, m_current_frame_name,
                                    PARAM_DEFAULT_TF_CURRENT_FRAME);
+        nhandle.param<bool>(PARAM_NAME_FORCED_TF_POSITION, m_forced_tf_position,
+                            PARAM_DEFAULT_FORCED_TF_POSITION);
         ROS_INFO_STREAM("[PosePublisher] reference frame = " << m_first_frame_name);
         ROS_INFO_STREAM("[PosePublisher] robot frame = " << m_robot_frame_name);
         ROS_INFO_STREAM("[PosePublisher] current frame = " << m_current_frame_name);
+        ROS_INFO_STREAM("[PosePublisher] forced tf position = " << m_forced_tf_position);
     }
 
     void publishPose(KinfuTracker &kinfu)
     {
-        ROS_DEBUG_STREAM("[PosePublisher] Inside publishPose");
-        Eigen::Affine3f original_coords = m_reverse_initial_transformation * kinfu.getCameraPose();
-
-        // after this, the z axis is the sensor axis and points forward
-        // the x axis is horizontal (points right) and the y axis is vertical (points downward)
-        Eigen::Matrix<float, 3, 3, Eigen::RowMajor> erreMats = original_coords.linear();
-        Eigen::Vector3f teVecs = original_coords.translation();
-
-        tf::Transform transform_current_to_first(
-                tf::Matrix3x3(erreMats(0, 0), erreMats(0, 1), erreMats(0, 2),
-                              erreMats(1, 0), erreMats(1, 1), erreMats(1, 2),
-                              erreMats(2, 0), erreMats(2, 1), erreMats(2, 2)), 
-                tf::Vector3(teVecs[0], teVecs[1], teVecs[2])
-        );
-
-        tf::StampedTransform transform_current_to_robot;
-        try
+        if (!m_forced_tf_position)
         {
-            m_tf_listener.lookupTransform(m_robot_frame_name, m_current_frame_name, 
-                                          ros::Time(0), transform_current_to_robot);
+            ROS_DEBUG_STREAM("[PosePublisher] Inside publishPose");
 
-            tf::Transform transform_robot_to_first;
-            transform_robot_to_first = transform_current_to_first * transform_current_to_robot.inverse();
+            Eigen::Affine3f original_coords = m_reverse_initial_transformation * kinfu.getCameraPose();
+
+            // after this, the z axis is the sensor axis and points forward
+            // the x axis is horizontal (points right) and the y axis is vertical (points downward)
+            Eigen::Matrix<float, 3, 3, Eigen::RowMajor> erreMats = original_coords.linear();
+            Eigen::Vector3f teVecs = original_coords.translation();
+
+            tf::Transform transform_current_to_first(
+                    tf::Matrix3x3(erreMats(0, 0), erreMats(0, 1), erreMats(0, 2),
+                                erreMats(1, 0), erreMats(1, 1), erreMats(1, 2),
+                                erreMats(2, 0), erreMats(2, 1), erreMats(2, 2)),
+                    tf::Vector3(teVecs[0], teVecs[1], teVecs[2])
+            );
+
+            tf::StampedTransform transform_current_to_robot;
+            try
+            {
+                m_tf_listener.lookupTransform(m_robot_frame_name, m_current_frame_name, 
+                                            ros::Time(0), transform_current_to_robot);
+
+                tf::Transform transform_robot_to_first;
+                transform_robot_to_first = transform_current_to_first * transform_current_to_robot.inverse();
 
             m_transform = tf::StampedTransform(transform_robot_to_first, ros::Time::now(), m_first_frame_name,
-                                               m_robot_frame_name);
+                                                m_robot_frame_name);
             m_tf_broadcaster.sendTransform(m_transform);
-        }
-        catch (tf::TransformException ex)
-        {
-            ROS_ERROR("[kinfuLS.cpp] %s",ex.what());
-        }       
+            }
+            catch (tf::TransformException ex)
+            {
+                ROS_ERROR("[kinfuLS.cpp] %s",ex.what());
+            }
+        }     
     }
 
     void setReverseInitialTransformation(Eigen::Affine3f it)
@@ -217,6 +224,7 @@ private:
     std::string m_first_frame_name;
     std::string m_current_frame_name;
     std::string m_robot_frame_name;
+    bool m_forced_tf_position;
 
     tf::TransformBroadcaster m_tf_broadcaster;
     tf::TransformListener m_tf_listener;
