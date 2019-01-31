@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 
     double roll = 0;
     double pitch = 0;
-    double yaw = 0;
+    double yaw = 3.1415;
     tf::Matrix3x3 R_camera_to_ee;
     R_camera_to_ee.setRPY(roll, pitch, yaw);
 
