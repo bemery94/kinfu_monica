@@ -28,11 +28,11 @@ int main(int argc, char **argv)
     bool tf_received = false;
     
     tf::Transform T_camera_to_ee;
-    tf::Vector3 t_camera_to_ee(0.0, 0.0, 0.05);
+    tf::Vector3 t_camera_to_ee(-0.018, 0.0, 0.03515);
 
     double roll = 0;
     double pitch = 0;
-    double yaw = 3.1415;
+    double yaw = 0;
     tf::Matrix3x3 R_camera_to_ee;
     R_camera_to_ee.setRPY(roll, pitch, yaw);
 
