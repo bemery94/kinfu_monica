@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     bool tf_received = false;
     
     tf::Transform T_camera_to_ee;
-    tf::Vector3 t_camera_to_ee(-0.018, 0.0, 0.03515);
+    tf::Vector3 t_camera_to_ee(-0.018, 0.0, 0.02);
 
     double roll = 0;
     double pitch = 0;
