@@ -9,6 +9,7 @@ project(kinfu_tf_fixer)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   tf
+  rosparam_shortcuts
 )
 
 ## System dependencies are found with CMake's conventions
