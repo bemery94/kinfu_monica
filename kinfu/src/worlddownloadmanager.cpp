@@ -262,11 +262,12 @@ void WorldDownloadManager::extractTsdfWorker(kinfu_msgs::KinfuTsdfRequestConstPt
   }
 
   // Convert pointcloud from voxel indices to world coordinates.
-  TsdfCloud point_cloud_world;
-  convVoxelPointCloudToWorld(*cloud, point_cloud_world);
+//  TsdfCloud point_cloud_world;
+//  convVoxelPointCloudToWorld(*cloud, point_cloud_world);
 
   ROS_INFO("kinfu: Sending message...");
-  pcl::toROSMsg(point_cloud_world,resp->pointcloud);
+//  pcl::toROSMsg(point_cloud_world,resp->pointcloud);
+  pcl::toROSMsg(*cloud,resp->pointcloud);
   resp->pointcloud.header = resp->header;
 
   
