@@ -255,6 +255,8 @@ class WorldDownloadManager: private KinfuOutputIAnswerer
   std::string m_reference_frame_name;
 
   RequestManager m_request_manager;
+
+  ros::Publisher m_sdf_saved_pub;
 };
 
 #endif // WORLDDOWNLOADMANAGER_H

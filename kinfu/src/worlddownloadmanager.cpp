@@ -34,6 +34,7 @@
 #include <pcl/gpu/kinfu_large_scale/impl/standalone_marching_cubes.hpp>
 #include <kinfu/bitmaskoctree.h>
 #include <sensor_msgs/fill_image.h>
+#include <std_msgs/Bool.h>
 #include <Eigen/StdVector>
 
 #include <pcl/filters/voxel_grid.h>
@@ -44,7 +45,8 @@
 template <typename T> T SQR(const T & t) {return t * t; }
 
 WorldDownloadManager::WorldDownloadManager(ros::NodeHandle &nhandle,boost::mutex &shared_mutex,boost::condition_variable & cond):
-  m_nh(nhandle),m_shared_mutex(shared_mutex),m_shared_cond(cond),m_request_manager(m_nh,*this)
+  m_nh(nhandle),m_shared_mutex(shared_mutex),m_shared_cond(cond),m_request_manager(m_nh,*this),
+  m_sdf_saved_pub(nhandle.advertise<std_msgs::Bool>("/kinfu/sdf_saved", 1, true))
 {
   m_kinfu_waiting_count = 0;
   m_kinfu_available = false;
@@ -270,9 +272,17 @@ void WorldDownloadManager::extractTsdfWorker(kinfu_msgs::KinfuTsdfRequestConstPt
   pcl::toROSMsg(*cloud,resp->pointcloud);
   resp->pointcloud.header = resp->header;
 
-  
+  std::string output_file = "/home/brendan/catkin_ws/src/kinfu_monica/kinfu/data/kinfu_reconstruction.pcd";
 
-  m_request_manager.SendResponse(resp);
+  pcl::PCDWriter writer;
+  writer.writeBinary(output_file, *cloud);
+  ROS_INFO_STREAM("Finished saving cloud pcd to: " << output_file);
+
+  std_msgs::Bool sdf_saved;
+  sdf_saved.data = true;
+  m_sdf_saved_pub.publish(sdf_saved);
+
+  // m_request_manager.SendResponse(resp);
   ROS_INFO("kinfu: Extract Tsdf Worker complete.");
 }
 
