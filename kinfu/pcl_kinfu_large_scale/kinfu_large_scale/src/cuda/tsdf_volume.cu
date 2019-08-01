@@ -722,10 +722,6 @@ namespace pcl
                             
                             const int Wrk = 1;
 
-//                            float tsdf_new =
-//                                    (tsdf_prev * weight_prev + Wrk * tsdf) /
-//                                    (weight_prev + Wrk);
-                            
                             // If either the new distance value or the old
                             // distance value is negative, we take the positive
                             // value since this is from a real observation, while
@@ -735,12 +731,14 @@ namespace pcl
                             if (tsdf_prev == 0)
                             {
                                 tsdf_new = tsdf;
-                            } else if (tsdf_prev < 0 || tsdf < 0)
+                            }
+                            else if (fabs(tsdf) < fabs(tsdf_prev))
                             {
-                                tsdf_new = fmax(tsdf_prev, tsdf);
-                            } else
+                                tsdf_new = tsdf;
+                            }
+                            else 
                             {
-                                tsdf_new = fmin(tsdf_prev, tsdf);
+                                tsdf_new = tsdf_prev;
                             }
                             
                             int weight_new = min(weight_prev + Wrk,
