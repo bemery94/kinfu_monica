@@ -704,7 +704,7 @@ namespace pcl
                         float sdf = Dp_scaled -
                                     sqrtf(v_g_z * v_g_z + v_g_part_norm);
                         
-                        float tranc_dist_neg = -0.05;
+                        float tranc_dist_neg = -0.02;
                         //if (Dp_scaled != 0 && sdf >= -tranc_dist) //meters
                         if (Dp_scaled != 0 && sdf >= tranc_dist_neg) //meters
                         {
