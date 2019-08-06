@@ -24,13 +24,7 @@ int main(int argc, char **argv)
     tf::TransformBroadcaster transform_br;
 
     bool publish_camera_pose;
-    double roll = 0;
-    double pitch = 0;
-    double yaw = 0;
-    if(!rosparam_shortcuts::get("FBA",  np, "publish_camera_pose", publish_camera_pose) ||
-       !rosparam_shortcuts::get("FBA",  np, "camera_roll", roll) ||
-       !rosparam_shortcuts::get("FBA",  np, "camera_pitch", pitch) ||
-       !rosparam_shortcuts::get("FBA",  np, "camera_yaw", yaw))
+    if(!rosparam_shortcuts::get("FBA",  np, "publish_camera_pose", publish_camera_pose))
     {
         return 1;
     }
@@ -38,14 +32,14 @@ int main(int argc, char **argv)
     ros::Rate rate(50.0);
     bool tf_received = false;
     
-    tf::Transform T_camera_screw_to_ee;
-    tf::Vector3 t_camera_screw_to_ee(-0.018, 0.0, 0.02);
+    tf::Vector3 t_camera_screw_to_ee(0.0, 0.0125, 0.035);
+    tf::Quaternion R_camera_screw_to_ee(0.500, -0.500, 0.500, 0.500);
+    tf::Transform T_camera_screw_to_ee(R_camera_screw_to_ee, t_camera_screw_to_ee);
     
-    tf::Matrix3x3 R_camera_screw_to_ee;
-    R_camera_screw_to_ee.setRPY(roll, pitch, yaw);
-
-    T_camera_screw_to_ee.setOrigin(t_camera_screw_to_ee);
-    T_camera_screw_to_ee.setBasis(R_camera_screw_to_ee);
+    tf::Vector3 t_camera_optical_to_camera_screw(0.000, 0.018, 0.013);
+    tf::Quaternion R_camera_optical_to_camera_screw(-0.500, 0.500, -0.500, 0.500);
+    tf::Transform T_camera_optical_to_camera_screw(R_camera_optical_to_camera_screw,
+                                                   t_camera_optical_to_camera_screw);
     
     tf::StampedTransform T_ee_to_world_initial;
     tf::Transform T_kinfu_ref_to_world;
@@ -53,12 +47,13 @@ int main(int argc, char **argv)
     {
         try
         {
-            listener.waitForTransform("/world", "/tool0", 
+            listener.waitForTransform("/world", "/tool0",
                                       ros::Time::now(), ros::Duration(5.0));
             listener.lookupTransform("/world", "/tool0",
                                      ros::Time(0), T_ee_to_world_initial);
 
-            T_kinfu_ref_to_world = T_ee_to_world_initial * T_camera_screw_to_ee;
+            T_kinfu_ref_to_world = T_ee_to_world_initial * T_camera_screw_to_ee * T_camera_optical_to_camera_screw;
+            
             tf_received = true;
         }
         catch (tf::TransformException ex)
@@ -81,15 +76,13 @@ int main(int argc, char **argv)
             try
             {
                 ros::Time current_time = ros::Time::now();
-                listener.waitForTransform("/world", "/tool0", ros::Time::now(), ros::Duration(5.0));
+                listener.waitForTransform("/world", "/tool0", ros::Time::now(),
+                                          ros::Duration(5.0));
                 listener.lookupTransform("/world", "/tool0",
-                                        current_time, T_ee_to_world);
-                listener.waitForTransform("/camera_bottom_screw_frame", "/camera_depth_optical_frame", ros::Time::now(), ros::Duration(5.0));
-                listener.lookupTransform("/camera_bottom_screw_frame", "/camera_depth_optical_frame",
-                                        current_time, T_cam_optical_to_cam_screw);
+                                         current_time, T_ee_to_world);
                 
                 T_cam_screw_to_world = T_ee_to_world * T_camera_screw_to_ee;
-                T_cam_screw_to_kinfu_ref = T_kinfu_ref_to_world.inverse() * T_cam_screw_to_world * T_cam_optical_to_cam_screw.inverse();
+                T_cam_screw_to_kinfu_ref = T_kinfu_ref_to_world.inverse() * T_cam_screw_to_world;
                 
                 transform_br.sendTransform(tf::StampedTransform(T_cam_screw_to_kinfu_ref, ros::Time::now(),
                                                                 "kinfu_reference", "camera_bottom_screw_frame"));

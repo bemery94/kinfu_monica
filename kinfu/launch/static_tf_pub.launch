@@ -1,6 +1,7 @@
 <launch>
-    <node pkg="tf" type="static_transform_publisher" name="tool0_to_camera_link_kinfu" args="-0.018, 0.0, 0.02 0.500 -0.500 0.500 0.500 tool0 camera_bottom_screw_frame 10" />
+    <node pkg="tf" type="static_transform_publisher" name="tool0_to_camera_link_kinfu"
+          args="0.0 0.0125 0.035 0.500 -0.500 0.500 0.500 tool0 camera_bottom_screw_frame 10" />
 
     <node pkg="tf" type="static_transform_publisher" name="camera_to_camera_screw_static_tf_pub" 
-          args="0.000, 0.018, 0.013 0 0 0  /camera_bottom_screw_frame /camera_link  10"/>
+          args="0.000 0.018 0.013 0 0 0  /camera_bottom_screw_frame /camera_link  10"/>
 </launch>

@@ -2,9 +2,6 @@
     <arg name="forced_tf_position" />
     <node name="tf_publisher_node" type="tf_publisher_node" pkg="kinfu_tf_fixer" output="screen" >
         <param name="publish_camera_pose" value="$(arg forced_tf_position)" />
-        <param name="camera_roll" value="0" />
-        <param name="camera_pitch" value="0" />
-        <param name="camera_yaw" value="0" />
     </node>
     
     <node pkg="tf" type="static_transform_publisher" name="camera_to_camera_screw_static_tf_pub" 
