@@ -29,7 +29,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    ros::Rate rate(50.0);
+    ros::Rate rate(100.0);
     bool tf_received = false;
     
     // EE realsense mount
@@ -46,12 +46,15 @@ int main(int argc, char **argv)
 
     // Wrist realsense mount
     std::string world_frame = "world";
-    std::string ee_frame = "realsense_wrist_mount";
-    tf::Vector3 t_camera_screw_to_ee(0.014, 0.0, 0.07);
-    tf::Quaternion R_camera_screw_to_ee(0.0, 0.0, 0.0, 1.0);
+    std::string ee_frame = "wrist_2_link";
+    //tf::Vector3 t_camera_screw_to_ee(0.014, 0.0, 0.07);
+    //tf::Quaternion R_camera_screw_to_ee(0.0, 0.0, 0.0, 1.0);
+    tf::Vector3 t_camera_screw_to_ee(0.000, -0.022, 0.165);
+    tf::Quaternion R_camera_screw_to_ee(0.707, 0.707, -0.000, -0.000);
+
     tf::Transform T_camera_screw_to_ee(R_camera_screw_to_ee, t_camera_screw_to_ee);
     
-    tf::Vector3 t_camera_optical_to_camera_screw(0.015, 0.018, 0.013);
+    tf::Vector3 t_camera_optical_to_camera_screw(0.0, 0.018, 0.013);
     tf::Quaternion R_camera_optical_to_camera_screw(-0.500, 0.500, -0.500, 0.500);
     tf::Transform T_camera_optical_to_camera_screw(R_camera_optical_to_camera_screw,
                                                    t_camera_optical_to_camera_screw);
