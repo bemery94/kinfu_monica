@@ -91,6 +91,9 @@ int main(int argc, char **argv)
     tf::Transform T_cam_screw_to_world;
     tf::Transform T_cam_screw_to_kinfu_ref;
 
+    bool T_cam_screw_to_kinfu_ref_initalised = false;
+    tf::Transform T_cam_screw_to_kinfu_ref_prev;
+    
     while (ros::ok())
     {
         tf::StampedTransform current_transform;
@@ -107,8 +110,30 @@ int main(int argc, char **argv)
                 T_cam_screw_to_world = T_ee_to_world * T_camera_screw_to_ee;
                 T_cam_screw_to_kinfu_ref = T_kinfu_ref_to_world.inverse() * T_cam_screw_to_world;
                 
-                transform_br.sendTransform(tf::StampedTransform(T_cam_screw_to_kinfu_ref, ros::Time::now(),
-                                                                "kinfu_reference", "camera_bottom_screw_frame"));
+                bool publish_tf = true;
+                if (T_cam_screw_to_kinfu_ref_initalised)
+                {
+                    tf::Vector3 translation_prev = T_cam_screw_to_kinfu_ref_prev.getOrigin();
+                    tf::Vector3 translation_curr = T_cam_screw_to_kinfu_ref.getOrigin();
+                    
+                    double dist = sqrt(pow(translation_curr.x() - translation_prev.x(), 2)
+                                     + pow(translation_curr.y() - translation_prev.y(), 2)
+                                     + pow(translation_curr.z() - translation_prev.z(), 2));
+                    if (dist > 0.1)
+                    {
+                        publish_tf = false;
+                        ROS_ERROR_STREAM("[tf_publisher_node] (kinfu) TF jumped, not publishing new tf.");
+                    }
+                }
+    
+                T_cam_screw_to_kinfu_ref_prev = T_cam_screw_to_kinfu_ref;
+                T_cam_screw_to_kinfu_ref_initalised = true;
+                
+                if (publish_tf)
+                {
+                    transform_br.sendTransform(tf::StampedTransform(T_cam_screw_to_kinfu_ref, ros::Time::now(),
+                                                                    "kinfu_reference", "camera_bottom_screw_frame"));
+                }
             }
             catch (tf::TransformException ex)
             {
