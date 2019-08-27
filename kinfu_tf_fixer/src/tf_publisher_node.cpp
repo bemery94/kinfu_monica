@@ -32,14 +32,30 @@ int main(int argc, char **argv)
     ros::Rate rate(50.0);
     bool tf_received = false;
     
-    tf::Vector3 t_camera_screw_to_ee(0.0, 0.0125, 0.035);
+    // EE realsense mount
+    //std::string world_frame = "world";
+    //std::string ee_frame = "tool0";
+    /*tf::Vector3 t_camera_screw_to_ee(0.0, 0.0125, 0.035);
     tf::Quaternion R_camera_screw_to_ee(0.500, -0.500, 0.500, 0.500);
     tf::Transform T_camera_screw_to_ee(R_camera_screw_to_ee, t_camera_screw_to_ee);
     
     tf::Vector3 t_camera_optical_to_camera_screw(0.000, 0.018, 0.013);
     tf::Quaternion R_camera_optical_to_camera_screw(-0.500, 0.500, -0.500, 0.500);
     tf::Transform T_camera_optical_to_camera_screw(R_camera_optical_to_camera_screw,
+                                                   t_camera_optical_to_camera_screw);*/
+
+    // Wrist realsense mount
+    std::string world_frame = "world";
+    std::string ee_frame = "realsense_wrist_mount";
+    tf::Vector3 t_camera_screw_to_ee(0.014, 0.0, 0.07);
+    tf::Quaternion R_camera_screw_to_ee(0.0, 0.0, 0.0, 1.0);
+    tf::Transform T_camera_screw_to_ee(R_camera_screw_to_ee, t_camera_screw_to_ee);
+    
+    tf::Vector3 t_camera_optical_to_camera_screw(0.015, 0.018, 0.013);
+    tf::Quaternion R_camera_optical_to_camera_screw(-0.500, 0.500, -0.500, 0.500);
+    tf::Transform T_camera_optical_to_camera_screw(R_camera_optical_to_camera_screw,
                                                    t_camera_optical_to_camera_screw);
+
     
     tf::StampedTransform T_ee_to_world_initial;
     tf::Transform T_kinfu_ref_to_world;
@@ -47,9 +63,9 @@ int main(int argc, char **argv)
     {
         try
         {
-            listener.waitForTransform("/world", "/tool0",
+            listener.waitForTransform(world_frame, ee_frame,
                                       ros::Time::now(), ros::Duration(5.0));
-            listener.lookupTransform("/world", "/tool0",
+            listener.lookupTransform(world_frame, ee_frame,
                                      ros::Time(0), T_ee_to_world_initial);
 
             T_kinfu_ref_to_world = T_ee_to_world_initial * T_camera_screw_to_ee * T_camera_optical_to_camera_screw;
@@ -76,9 +92,9 @@ int main(int argc, char **argv)
             try
             {
                 ros::Time current_time = ros::Time::now();
-                listener.waitForTransform("/world", "/tool0", ros::Time::now(),
+                listener.waitForTransform(world_frame, ee_frame, ros::Time::now(),
                                           ros::Duration(5.0));
-                listener.lookupTransform("/world", "/tool0",
+                listener.lookupTransform(world_frame, ee_frame,
                                          current_time, T_ee_to_world);
                 
                 T_cam_screw_to_world = T_ee_to_world * T_camera_screw_to_ee;
